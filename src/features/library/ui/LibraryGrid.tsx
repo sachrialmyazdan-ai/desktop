@@ -160,6 +160,7 @@ function LibraryItemCard({ item }: { item: LibraryItemViewModel }) {
 
   return (
     <PlaylistCard
+      id={item.kind === "playlist" ? item.id : undefined}
       title={item.title}
       author={item.subtitle}
       imageUrl={item.imageUrl}
