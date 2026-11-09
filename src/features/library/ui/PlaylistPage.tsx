@@ -48,6 +48,7 @@ import Button from "@/shared/ui/Button";
 import DropdownMenu from "@/shared/ui/DropdownMenu";
 import SongCardWithMenu from "@/features/player/ui/SongCardWithMenu";
 import CoverImage from "@/features/covers/ui/CoverImage";
+import { useCustomPlaylistCover } from "../hooks/useCustomPlaylistCover";
 import { useModalStore } from "../store/modalStore";
 import {
   usePlaylist,
@@ -132,11 +133,16 @@ function PlaylistHeroCover({
   urls,
   title,
   likesCover,
+  customCover,
 }: {
   urls: string[];
   title: string;
   likesCover?: string;
+  customCover?: { dataUrl: string; x: number; y: number } | null;
 }) {
+  if (customCover) {
+    return <img src={customCover.dataUrl} alt={title} draggable={false} className="absolute inset-0 h-full w-full object-cover select-none" style={{ objectPosition: `${customCover.x}% ${customCover.y}%` }} />;
+  }
   if (urls.length === 0) {
     return likesCover ? (
       <img
@@ -197,6 +203,8 @@ function LibraryPlaylistContent() {
   const currentUser = useAuthStore((state) => state.user);
   const likesOwnerName = userDisplayName(currentUser);
   const decodedId = id ? decodeURIComponent(id) : null;
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const customCover = useCustomPlaylistCover(isLikesMode ? null : decodedId);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
@@ -284,7 +292,7 @@ function LibraryPlaylistContent() {
   usePageBackdrop(
     isLikesMode
       ? likesCover
-      : (viewData?.coverUrls?.[0] ??
+      : (customCover.cover?.dataUrl ?? viewData?.coverUrls?.[0] ??
           (viewData?.coverUrl || undefined) ??
           preview?.coverUrls[0]),
   );
@@ -617,6 +625,7 @@ function LibraryPlaylistContent() {
                       urls={viewData.coverUrls}
                       title={viewData.title}
                       likesCover={isLikesMode ? likesCover : undefined}
+                      customCover={customCover.cover}
                     />
                   }
                   title={
@@ -769,6 +778,12 @@ function LibraryPlaylistContent() {
                   }
                   actions={
                     <>
+                      <input ref={coverInputRef} type="file" accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif" className="hidden"
+                        onChange={(event) => {
+                          const file = event.currentTarget.files?.[0];
+                          if (file) void customCover.chooseFile(file);
+                          event.currentTarget.value = "";
+                        }} />
                       <Button
                         variant="primary"
                         onClick={handlePlayAll}
@@ -787,6 +802,19 @@ function LibraryPlaylistContent() {
                       >
                         <LuShuffle size={18} />
                       </Button>
+                      {customCover.cover ? (
+                        <div className="flex items-center gap-[8px] rounded-[10px] bg-border-alpha-8 px-[10px] py-[6px] text-caption text-text-secondary">
+                          <label className="flex items-center gap-[5px]">X
+                            <input aria-label="Cover horizontal position" type="range" min="0" max="100" value={customCover.cover.x}
+                              onChange={(e) => void customCover.setPosition(Number(e.target.value), customCover.cover!.y)} />
+                          </label>
+                          <label className="flex items-center gap-[5px]">Y
+                            <input aria-label="Cover vertical position" type="range" min="0" max="100" value={customCover.cover.y}
+                              onChange={(e) => void customCover.setPosition(customCover.cover!.x, Number(e.target.value))} />
+                          </label>
+                        </div>
+                      ) : null}
+                      {customCover.error ? <span className="text-caption text-accent-primary">{customCover.error}</span> : null}
                     </>
                   }
                   trailingActions={
@@ -865,6 +893,18 @@ function LibraryPlaylistContent() {
                               label: t("common.edit_description"),
                               onClick: () => setIsEditingDescription(true),
                             },
+                            {
+                              id: "custom-cover",
+                              icon: <LuPencil size={15} />,
+                              label: "Change playlist cover",
+                              onClick: () => coverInputRef.current?.click(),
+                            },
+                            ...(customCover.cover ? [{
+                              id: "remove-custom-cover",
+                              icon: <LuTrash2 size={15} />,
+                              label: "Reset playlist cover",
+                              onClick: () => void customCover.remove(),
+                            }] : []),
                             {
                               id: "share",
                               icon: <ShareForwardLine size={15} />,
