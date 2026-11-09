@@ -588,3 +588,30 @@ html[data-hover-reset] [data-window-controls] button:hover {
 .lyrics-edge-fog[data-at-bottom] {
   --lyrics-fog-bottom: 0%;
 }
+
+/* User-customizable app background. Kept behind the app UI so controls stay interactive. */
+.liner-app-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transition: opacity 180ms ease;
+}
+
+.liner-app-background--animated {
+  background-size: 220% 220%;
+  animation: liner-background-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes liner-background-drift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 35% 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liner-app-background--animated { animation: none; }
+}
