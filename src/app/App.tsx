@@ -21,6 +21,7 @@ import DeeplinkHandler from "./DeeplinkHandler";
 import EnvironmentWarning from "./EnvironmentWarning";
 import { ConnectionIssueModal } from "@/features/connectivity";
 import { useThemeCustomizationSync } from "@/features/settings";
+import { AppBackground } from "@/features/settings/ui/AppBackground";
 import "./globals.css";
 
 function AppIconSync() {
@@ -66,6 +67,7 @@ export default function App() {
         disableTransitionOnChange
       >
         <GlobalTooltip />
+        <AppBackground />
         <ThemeSync />
         <AppIconSync />
         <PresenceSync />
@@ -81,7 +83,9 @@ export default function App() {
                   <EnvironmentWarning />
                   <ConnectionIssueModal />
                   <AuthLock>
-                    <AppRoutes />
+                    <div className="relative z-[1] h-full w-full">
+                      <AppRoutes />
+                    </div>
                   </AuthLock>
                 </WindowAnimationContainer>
               </RootErrorBoundary>
