@@ -5,8 +5,10 @@ import DropdownMenu from "@/shared/ui/DropdownMenu";
 import type { DropdownMenuItem } from "@/shared/ui/DropdownMenu";
 import type { PlaylistVariant } from "../types";
 import CoverImage from "@/features/covers/ui/CoverImage";
+import { useCustomPlaylistCover } from "../hooks/useCustomPlaylistCover";
 
 export interface PlaylistCardProps {
+  id?: string;
   title: string;
   author: string;
   imageUrl: string;
@@ -66,6 +68,7 @@ function CoverCollage({ urls, title }: { urls: string[]; title: string }) {
 }
 
 function PlaylistCard({
+  id,
   title,
   author,
   imageUrl,
@@ -79,14 +82,16 @@ function PlaylistCard({
   className = "",
   menuItems,
 }: PlaylistCardProps) {
+  const customCover = useCustomPlaylistCover(variant === "playlist" ? (id ?? null) : null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
 
-  const effectiveUrls =
-    coverUrls && coverUrls.length > 0 ? coverUrls : imageUrl ? [imageUrl] : [];
+  const effectiveUrls = customCover.cover
+    ? [customCover.cover.dataUrl]
+    : coverUrls && coverUrls.length > 0 ? coverUrls : imageUrl ? [imageUrl] : [];
   const hasCollage = effectiveUrls.length >= 2;
 
   const handleContextMenu = useCallback(
@@ -112,7 +117,11 @@ function PlaylistCard({
           variant === "artist" ? "rounded-full" : "rounded-control"
         } flex items-center justify-center`}
       >
-        {effectiveUrls.length > 0 ? (
+        {customCover.cover ? (
+          <img src={customCover.cover.dataUrl} alt={title} draggable={false}
+            className="absolute inset-0 h-full w-full object-cover transition-all duration-300 group-hover:brightness-[1.15]"
+            style={{ objectPosition: `${customCover.cover.x}% ${customCover.cover.y}%` }} />
+        ) : effectiveUrls.length > 0 ? (
           hasCollage ? (
             <CoverCollage urls={effectiveUrls} title={title} />
           ) : (
