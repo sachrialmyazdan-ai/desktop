@@ -1,27 +1,19 @@
 import { useAppBackgroundStore } from "../store/appBackgroundStore";
 
 export function AppBackground() {
-  const mode = useAppBackgroundStore((state) => state.mode);
+  const enabled = useAppBackgroundStore((state) => state.enabled);
   const color = useAppBackgroundStore((state) => state.color);
   const secondColor = useAppBackgroundStore((state) => state.secondColor);
-  const wallpaper = useAppBackgroundStore((state) => state.wallpaper);
   const opacity = useAppBackgroundStore((state) => state.opacity);
 
-  if (mode === "off") return null;
-
-  const backgroundImage =
-    mode === "wallpaper" && wallpaper
-      ? `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.12)), url("${wallpaper}")`
-      : mode === "solid"
-        ? `linear-gradient(${color}, ${color})`
-        : `linear-gradient(135deg, ${color}, ${secondColor}, ${color})`;
+  if (!enabled) return null;
 
   return (
     <div
       aria-hidden="true"
-      className={mode === "gradient" ? "liner-app-background liner-app-background--animated" : "liner-app-background"}
+      className="liner-app-background liner-app-background--animated"
       style={{
-        backgroundImage,
+        backgroundImage: `linear-gradient(135deg, ${color}, ${secondColor}, ${color})`,
         opacity,
       }}
     />
