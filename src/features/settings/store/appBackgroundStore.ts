@@ -1,42 +1,35 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type AppBackgroundMode = "off" | "gradient" | "solid" | "wallpaper";
-
 type AppBackgroundState = {
-  mode: AppBackgroundMode;
+  enabled: boolean;
   color: string;
   secondColor: string;
-  wallpaper: string | null;
   opacity: number;
-  setMode: (mode: AppBackgroundMode) => void;
+  setEnabled: (enabled: boolean) => void;
   setColor: (color: string) => void;
   setSecondColor: (color: string) => void;
-  setWallpaper: (wallpaper: string | null) => void;
   setOpacity: (opacity: number) => void;
 };
 
 export const useAppBackgroundStore = create<AppBackgroundState>()(
   persist(
     (set) => ({
-      mode: "gradient",
+      enabled: true,
       color: "#17172f",
       secondColor: "#653b91",
-      wallpaper: null,
       opacity: 0.42,
-      setMode: (mode) => set({ mode }),
+      setEnabled: (enabled) => set({ enabled }),
       setColor: (color) => set({ color }),
       setSecondColor: (secondColor) => set({ secondColor }),
-      setWallpaper: (wallpaper) => set({ wallpaper }),
       setOpacity: (opacity) => set({ opacity }),
     }),
     {
       name: "liner-app-background",
       partialize: (state) => ({
-        mode: state.mode,
+        enabled: state.enabled,
         color: state.color,
         secondColor: state.secondColor,
-        wallpaper: state.wallpaper,
         opacity: state.opacity,
       }),
     },
