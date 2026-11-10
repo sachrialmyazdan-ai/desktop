@@ -26,7 +26,7 @@ function openDatabase(): Promise<IDBDatabase> {
 
 async function readCover(id: string): Promise<CustomPlaylistCover | null> {
   const db = await openDatabase();
-  return new Promise((resolve, reject) => {
+  return new Promise<CustomPlaylistCover | null>((resolve, reject) => {
     const request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(id);
     request.onsuccess = () => resolve((request.result as CustomPlaylistCover | undefined) ?? null);
     request.onerror = () => reject(request.error);
