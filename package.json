@@ -1,6 +1,6 @@
 {
   "name": "@liner/client",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "type": "module",
   "private": true,
   "description": "Liner Music Player",
@@ -34,13 +34,6 @@
     "productName": "Liner",
     "executableName": "liner",
     "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "tryliner",
-        "repo": "desktop"
-      }
-    ],
     "directories": {
       "output": "release"
     },
